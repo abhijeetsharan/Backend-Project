@@ -1,6 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js";
-import {User} from "../models/user.model.js";
+import { User } from "../models/user.model.js";
 import {uploadOnCloudinary} from "../utils/cloudinary.js";
 import {ApiResponse} from "../utils/ApiResponse.js"
 
@@ -99,14 +99,15 @@ const loginUser = asyncHandler( async (req, res) => {
     //access and refresh token
     //send cookie
 
-    const { email, username, password } = req.body;
+    const {email, username, password} = req.body;
+    // console.log(email);
 
-    if(!username || !email){
+    if (!username && !email){
         throw new ApiError(400, "Username or Email is required")
     }
 
-    const user = User.findOne({
-        $or: [{ username }, { email }],
+    const user = await User.findOne({
+        $or: [{username}, {email}],
     })
 
     if(!user){
@@ -121,7 +122,7 @@ const loginUser = asyncHandler( async (req, res) => {
 
     const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
 
-    const loggedInUser = User.findById(user._id).select(
+    const loggedInUser = await User.findById(user._id).select(
         "-password -refreshToken"
     )
 
